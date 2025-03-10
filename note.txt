@@ -1,0 +1,37 @@
+
+When paintComponent() work?
+ - The component is initially displayed.
+ - The Window is resized
+ - The component is updated (e.g., text or visual changes)
+ - Explicitly when repaint() is called.
+
+Swing relies on the Event Dispatch Thread (EDT) to process events like repainting and timer events.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
