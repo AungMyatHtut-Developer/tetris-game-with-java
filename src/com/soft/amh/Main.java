@@ -13,7 +13,7 @@ public class Main {
 /*
 1. Build Project & Create Game Screens
 2. Drawing basic shapes and demo game loop
-3. Create a good game loop
+3. Create a good game loop based on FPS and UPS
 4. Adding Grids and required screens
 5. Drawing Blocks
 6. Changing Block Shapes
