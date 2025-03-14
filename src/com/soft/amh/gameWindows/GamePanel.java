@@ -8,22 +8,17 @@ import static com.soft.amh.constants.GameConstants.GAME_SCREEN_WIDTH;
 
 public class GamePanel extends JPanel {
 
-    private float rectX, rectY;
-    private int xDirection, yDirection, rectWidth, rectHeight;
+    private GameWindow gameWindow;
 
-    public GamePanel() {
+    public GamePanel(GameWindow gameWindow) {
+        this.gameWindow = gameWindow;
         setPreferredSize(new Dimension(GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT));
-        xDirection = 1;
-        yDirection = 1;
-        rectWidth = 50;
-        rectHeight = 50;
+        setBackground(Color.BLACK);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        g.setColor(Color.BLACK);
-        g.fillRect((int) rectX, (int) rectY, rectWidth,rectHeight);
+        gameWindow.render(g);
     }
 }

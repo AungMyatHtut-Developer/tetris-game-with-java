@@ -2,15 +2,18 @@ package com.soft.amh.gameWindows;
 
 import java.awt.*;
 
+import static com.soft.amh.constants.GameConstants.*;
+
 public class GameWindow implements Runnable{
 
     private GameFrame gameFrame;
     private GamePanel gamePanel;
     private Thread gameThread;
     private boolean isGameRunning;
+    private int fpsTracker = 0;
 
     public GameWindow() {
-        gamePanel = new GamePanel();
+        gamePanel = new GamePanel(this);
         gameFrame = new GameFrame(gamePanel);
         initGameLoop();
     }
@@ -40,14 +43,14 @@ public class GameWindow implements Runnable{
             if(currentTimeForFps - lastTimeForFps >= targetFps){
                 lastTimeForFps = currentTimeForFps;
                 update();
-                render(gamePanel.getGraphics());
+                gamePanel.repaint();
                 fps++;
             }
 
             currentTimeForFpsTracker = System.currentTimeMillis();
             if(currentTimeForFpsTracker - lastTimeForFpsTracker >= 1_000){
                 lastTimeForFpsTracker = currentTimeForFpsTracker;
-                System.out.println("FPS : "+ fps);
+                fpsTracker = fps;
                 fps=0;
             }
 
@@ -61,6 +64,45 @@ public class GameWindow implements Runnable{
 
     public void render(Graphics graphics){
         //render game ui
-        gamePanel.repaint();
+        drawFpsTracker(graphics);
+        drawGrids(graphics);
+        drawNextBlock(graphics);
+        drawScorePane(graphics);
+        drawHighestScorePane(graphics);
+    }
+
+    public void drawGrids(Graphics graphics){
+        // 10 x 20
+        graphics.setColor(Color.WHITE);
+        graphics.drawRect(100,100, (GRID_SIZE * GRID_WIDTH), (GRID_SIZE * GRID_HEIGHT));
+
+        for (int i = 0; i < GRID_HEIGHT; i++) {
+            for (int j = 0 ; j < GRID_WIDTH; j++){
+                graphics.drawRect(100 + (j * GRID_SIZE), 100 + (i * GRID_SIZE), GRID_SIZE, GRID_SIZE);
+            }
+        }
+    }
+
+    public void drawNextBlock(Graphics graphics){
+        graphics.setColor(Color.WHITE);
+        graphics.drawRect(450,100, 150, 100);
+        graphics.drawString("Next : ", 450, 120);
+    }
+
+    public void drawScorePane(Graphics graphics){
+        graphics.setColor(Color.WHITE);
+        graphics.drawRect(450,250, 150, 100);
+        graphics.drawString("Score : ", 450, 270);
+    }
+
+    public void drawHighestScorePane(Graphics graphics){
+        graphics.setColor(Color.WHITE);
+        graphics.drawRect(450,400, 150, 100);
+        graphics.drawString("Highest Score : ", 450, 420);
+    }
+
+    public void drawFpsTracker(Graphics graphics) {
+        graphics.setColor(Color.GREEN);
+        graphics.drawString("FPS : "+fpsTracker,10,10);
     }
 }

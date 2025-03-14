@@ -15,13 +15,14 @@ public class Main {
 2. Drawing basic shapes and demo game loop
 3. Create a good game loop based on FPS and UPS
 4. Adding Grids and required screens
-5. Drawing Blocks
-6. Changing Block Shapes
-7. Randomly Generate Blocks
-8. Collision Detection
-9. Stacking Block on each other
-10. Removing full lines of blocks and score
-11. Store high score in file
-12. Adding game sound effects and music
-13. Export application file into production
+5. Adding Mouse and Keyboard handlers
+6. Drawing Blocks
+7. Changing Block Shapes
+8. Randomly Generate Blocks
+9. Collision Detection
+10. Stacking Block on each other
+11. Removing full lines of blocks and score
+12. Store high score in file
+13. Adding game sound effects and music
+14. Export application file into production
  */
