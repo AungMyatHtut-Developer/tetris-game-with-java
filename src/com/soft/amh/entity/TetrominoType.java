@@ -1,16 +1,8 @@
+package com.soft.amh.entity;
 
-When paintComponent() work?
- - The component is initially displayed.
- - The Window is resized
- - The component is updated (e.g., text or visual changes)
- - Explicitly when repaint() is called.
+import java.awt.*;
 
-Swing relies on the Event Dispatch Thread (EDT) to process events like repainting and timer events.
-
-
-
-
-
+public enum TetrominoType {
 
     I(new int[][]{
             {0, 0, 0, 0},
@@ -158,25 +150,19 @@ Swing relies on the Event Dispatch Thread (EDT) to process events like repaintin
             {0, 0, 0, 0}
     }, Color.CYAN);
 
+    private final int[][] tetrominoData;
+    private final Color color;
 
+    TetrominoType(int[][] tetrominoData, Color color) {
+        this.tetrominoData = tetrominoData;
+        this.color = color;
+    }
 
+    public int[][] getTetrominoData() {
+        return tetrominoData;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public Color getColor() {
+        return color;
+    }
+}

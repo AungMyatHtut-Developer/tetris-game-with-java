@@ -11,14 +11,19 @@ public class GameWindow implements Runnable{
     private Thread gameThread;
     private boolean isGameRunning;
     private int fpsTracker = 0;
+    private TetrisWorld tetrisWorld;
 
     public GameWindow() {
+        initTetrisWorld();
         gamePanel = new GamePanel(this);
         gameFrame = new GameFrame(gamePanel);
         gamePanel.setFocusable(true);
         initGameLoop();
     }
 
+    private void initTetrisWorld() {
+        tetrisWorld = new TetrisWorld();
+    }
 
     private void initGameLoop(){
         gameThread = new Thread(this);
@@ -61,6 +66,7 @@ public class GameWindow implements Runnable{
 
     public void update(){
         //update game components
+        tetrisWorld.update();
     }
 
     public void render(Graphics graphics){
@@ -70,6 +76,7 @@ public class GameWindow implements Runnable{
         drawNextBlock(graphics);
         drawScorePane(graphics);
         drawHighestScorePane(graphics);
+        tetrisWorld.render(graphics);
     }
 
     public void drawGrids(Graphics graphics){
