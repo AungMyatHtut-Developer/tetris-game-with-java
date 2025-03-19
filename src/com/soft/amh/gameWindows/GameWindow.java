@@ -86,7 +86,7 @@ public class GameWindow implements Runnable{
 
         for (int i = 0; i < GRID_HEIGHT; i++) {
             for (int j = 0 ; j < GRID_WIDTH; j++){
-                graphics.drawRect(100 + (j * GRID_SIZE), 100 + (i * GRID_SIZE), GRID_SIZE, GRID_SIZE);
+                //graphics.drawRect(100 + (j * GRID_SIZE), 100 + (i * GRID_SIZE), GRID_SIZE, GRID_SIZE);
             }
         }
     }
@@ -112,5 +112,9 @@ public class GameWindow implements Runnable{
     public void drawFpsTracker(Graphics graphics) {
         graphics.setColor(Color.GREEN);
         graphics.drawString("FPS : "+fpsTracker,10,10);
+    }
+
+    public TetrisWorld getTetrisWorld() {
+        return tetrisWorld;
     }
 }
