@@ -12,12 +12,16 @@ import java.util.Random;
 public class TetrisWorld {
 
     private List<Tetromino> tetrominoList;
+    private int[][] collisionData;
+    private Color[][] colorData;
     private Random random;
 
     public TetrisWorld() {
         random = new Random();
         tetrominoList = new ArrayList<>();
-        Tetromino tetromino3 = new Tetromino(300,200, TetrominoType.I, true);
+        collisionData = new int[30][15];
+        colorData = new Color[30][15];
+        Tetromino tetromino3 = new Tetromino(300,200, TetrominoType.I, true, this);
         tetrominoList.add(tetromino3);
     }
 
@@ -27,12 +31,33 @@ public class TetrisWorld {
             Tetromino t = tetrominoIterator.next();
             t.update();
             if (!t.isActive()) {
+                addToCollisionData(t.getTetrominoData(),t.getX(), t.getY(), t.getTetrominoType());
                 tetrominoIterator.remove();
             }
         }
 
         if (tetrominoList.isEmpty()) {
-            tetrominoList.add(new Tetromino(260,100, generateRandomTetromino(), true));
+            tetrominoList.add(new Tetromino(260,100, generateRandomTetromino(), true, this));
+        }
+
+    }
+
+    private void addToCollisionData(int[][] tetrominoData, int x, int y, TetrominoType tetrominoType) {
+
+        for (int deltaY = 0; deltaY < tetrominoData.length; deltaY++) {
+            for (int deltaX = 0; deltaX < tetrominoData[deltaY].length; deltaX++) {
+
+                if (tetrominoData[deltaY][deltaX] == 1) {
+                    //calculate position in collision grid
+                    int gridX = (x - 100 + (deltaX * 20)) / 20;
+                    int gridY = (y - 100 + (deltaY * 20)) / 20;
+
+                    if (gridX >= 0 && gridX < collisionData[0].length && gridY >= 0 && gridY < collisionData.length) {
+                        collisionData[gridY][gridX] = 1;
+                        colorData[gridY][gridX] = tetrominoType.getColor();
+                    }
+                }
+            }
         }
 
     }
@@ -73,6 +98,19 @@ public class TetrisWorld {
         for (Tetromino t : tetrominoList) {
             t.render(g);
         }
+
+        for (int deltaY = 0; deltaY < collisionData.length; deltaY++) {
+            for (int deltaX = 0; deltaX < collisionData[deltaY].length; deltaX++) {
+
+                if (collisionData[deltaY][deltaX] == 1) {
+                    g.setColor(colorData[deltaY][deltaX]);
+                    g.fillRect(deltaX * 20 + 100, deltaY * 20 + 100, 20,20);
+                    g.setColor(Color.WHITE);
+                    g.drawRect(deltaX * 20 + 101, deltaY * 20 + 101, 19, 19);
+                }
+
+            }
+        }
     }
 
     public void setLeft(boolean status) {
@@ -94,5 +132,9 @@ public class TetrisWorld {
         for (Tetromino t : tetrominoList) {
             if(t.isActive()) t.setDown(status);
         }
+    }
+
+    public int[][] getCollisionData() {
+        return collisionData;
     }
 }

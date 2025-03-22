@@ -1,12 +1,17 @@
 package com.soft.amh.entity;
 
+import com.soft.amh.gameWindows.TetrisWorld;
+
 import java.awt.*;
+
+import static com.soft.amh.helper.CollisionHelper.canMove;
 
 public class Tetromino {
 
     private int x,y;
     private int blockWidth = 20, blockHeight = 20;
     private TetrominoType tetrominoType;
+    private TetrisWorld tetrisWorld;
     private int downSpeed = 20;
     private int updateCount;
     private int leftRightSpeed = 1;
@@ -15,7 +20,8 @@ public class Tetromino {
     private boolean isActive;
     private boolean left,right,up,down;
 
-    public Tetromino(int x, int y, TetrominoType tetrominoType, boolean isActive) {
+    public Tetromino(int x, int y, TetrominoType tetrominoType, boolean isActive, TetrisWorld tetrisWorld) {
+        this.tetrisWorld = tetrisWorld;
         this.x = x;
         this.y = y;
         this.tetrominoType = tetrominoType;
@@ -32,12 +38,21 @@ public class Tetromino {
         }
 
         if(updateCount > downSpeed){
-            y+=20;
+            if(canMoveDown()){
+                y+=20;
+            }else{
+                isActive = false;
+            }
             updateCount = 0;
         }else{
             updateCount++;
         }
 
+
+        checkBoundaries();
+    }
+
+    private void checkBoundaries() {
         //check left boundary
         if(x < 100 - tetrominoType.getOffsetXL()){
             x = 100 - tetrominoType.getOffsetXL();
@@ -47,27 +62,57 @@ public class Tetromino {
             x = (400 - (blockWidth * 4)) + tetrominoType.getOffsetXR();
         }
 
-        if (y > 700) {
+        //check down boundary
+        if ( (y + (blockHeight * 4 ) - tetrominoType.getOffsetYD()) > 700) {
+            y = (700 - (blockHeight * 4)) + tetrominoType.getOffsetYD();
             isActive = false;
         }
     }
 
     private void move() {
         if (left && !right) {
-            x -= 20;
+
+            if(canMoveLeft()){
+                x -= 20;
+            } else if (!canMoveRight()) {
+                isActive = false;
+            }
         }
 
         if (right && !left) {
-            x += 20;
+            if(canMoveRight()){
+                x += 20;
+            } else if (!canMoveLeft()) {
+                isActive = false;
+            }
         }
 
         if (down && !up){
-            y += 20;
+            if(canMoveDown()){
+                y += 20;
+            }else {
+                isActive = false;
+            }
         }
     }
 
+    private boolean canMoveRight() {
+       return canMove(tetrisWorld.getCollisionData(), x + 20, y, tetrominoType);
+    }
+
+    private boolean canMoveLeft() {
+        return canMove(tetrisWorld.getCollisionData(), x - 20, y, tetrominoType);
+    }
+
+    private boolean canMoveDown() {
+        return canMove(tetrisWorld.getCollisionData(), x , y + 20, tetrominoType);
+    }
+
     public void switchShape(){
-        tetrominoType = tetrominoType.next();
+        TetrominoType nextType = tetrominoType.next();
+        if(canMove(tetrisWorld.getCollisionData(), x, y, nextType)){
+            tetrominoType = nextType;
+        }
     }
 
     public void render(Graphics g){
@@ -79,7 +124,7 @@ public class Tetromino {
                     g.fillRect(x + (deltaX * blockWidth) , y + (deltaY * blockHeight), blockWidth, blockHeight);
                     g.setColor(Color.WHITE);
                     g.drawRect(x + (deltaX * blockWidth) , y + (deltaY * blockHeight), blockWidth -1, blockHeight-1);
-                    g.drawRect(x,y,blockWidth*4, blockHeight*4);
+                    //g.drawRect(x,y,blockWidth*4, blockHeight*4);
                 }
             }
         }
@@ -103,5 +148,20 @@ public class Tetromino {
 
     public boolean isActive() {
         return isActive;
+    }
+
+    public TetrominoType getTetrominoType() {
+        return tetrominoType;
+    }
+    public int[][] getTetrominoData() {
+        return tetrominoType.getTetrominoData();
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }
