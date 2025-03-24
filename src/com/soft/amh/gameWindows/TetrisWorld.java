@@ -4,10 +4,8 @@ import com.soft.amh.entity.Tetromino;
 import com.soft.amh.entity.TetrominoType;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class TetrisWorld {
 
@@ -16,31 +14,79 @@ public class TetrisWorld {
     private Color[][] colorData;
     private Random random;
 
+    private boolean isTimeToAnimate;
+    private Map<Integer, Color[]> animationColors;
+    private int animationBlockSize = 20;
+
     public TetrisWorld() {
         random = new Random();
         tetrominoList = new ArrayList<>();
         collisionData = new int[30][15];
         colorData = new Color[30][15];
-        Tetromino tetromino3 = new Tetromino(300,200, TetrominoType.I, true, this);
+        animationColors = new HashMap<>();
+
+        Tetromino tetromino3 = new Tetromino(300, 200, TetrominoType.I, true, this);
         tetrominoList.add(tetromino3);
     }
 
     public void update() {
-        Iterator<Tetromino> tetrominoIterator = tetrominoList.iterator();
-        while (tetrominoIterator.hasNext()) {
-            Tetromino t = tetrominoIterator.next();
-            t.update();
-            if (!t.isActive()) {
-                addToCollisionData(t.getTetrominoData(),t.getX(), t.getY(), t.getTetrominoType());
-                tetrominoIterator.remove();
+        if (!isTimeToAnimate) {
+            Iterator<Tetromino> tetrominoIterator = tetrominoList.iterator();
+            while (tetrominoIterator.hasNext()) {
+                Tetromino t = tetrominoIterator.next();
+                t.update();
+                if (!t.isActive()) {
+                    addToCollisionData(t.getTetrominoData(), t.getX(), t.getY(), t.getTetrominoType());
+                    tetrominoIterator.remove();
+                }
+            }
+
+            if (tetrominoList.isEmpty()) {
+                tetrominoList.add(new Tetromino(260, 100, generateRandomTetromino(), true, this));
+            }
+
+            int removedRows = checkAndRemoveFullRows();
+            if (removedRows > 0) {
+                isTimeToAnimate = true;
             }
         }
-
-        if (tetrominoList.isEmpty()) {
-            tetrominoList.add(new Tetromino(260,100, generateRandomTetromino(), true, this));
-        }
-
     }
+
+    private int checkAndRemoveFullRows() {
+        int removedRows = 0;
+        for (int y = collisionData.length - 1; y >= 0; y--) {
+            if (isRowFull(y)) {
+                removeRow(y);
+                removedRows++;
+            }
+        }
+        return removedRows;
+    }
+
+    private void shiftRowDown(int row) {
+        for (int y = row; y > 0; y--) {
+            System.arraycopy(collisionData[y - 1], 0, collisionData[y], 0, collisionData[y].length);
+            System.arraycopy(colorData[y - 1], 0, colorData[y], 0, colorData[y].length);
+        }
+    }
+
+    private void removeRow(int row) {
+        Color[] removedColors = new Color[15];
+        System.arraycopy(colorData[row], 0, removedColors, 0, removedColors.length);
+        animationColors.put(row, removedColors);
+        Arrays.fill(collisionData[row], 0);
+        Arrays.fill(colorData[row], null);
+    }
+
+    private boolean isRowFull(int row) {
+        for (int x : collisionData[row]) {
+            if (x != 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     private void addToCollisionData(int[][] tetrominoData, int x, int y, TetrominoType tetrominoType) {
 
@@ -94,6 +140,7 @@ public class TetrisWorld {
         return random.nextInt(bound);
     }
 
+
     public void render(Graphics g) {
         for (Tetromino t : tetrominoList) {
             t.render(g);
@@ -104,33 +151,55 @@ public class TetrisWorld {
 
                 if (collisionData[deltaY][deltaX] == 1) {
                     g.setColor(colorData[deltaY][deltaX]);
-                    g.fillRect(deltaX * 20 + 100, deltaY * 20 + 100, 20,20);
+                    g.fillRect(deltaX * 20 + 100, deltaY * 20 + 100, 20, 20);
                     g.setColor(Color.WHITE);
                     g.drawRect(deltaX * 20 + 101, deltaY * 20 + 101, 19, 19);
                 }
+            }
+        }
 
+        if (isTimeToAnimate) {
+            for (Map.Entry<Integer, Color[]> entry : animationColors.entrySet()) {
+                Integer key = entry.getKey();
+                for (int x = 0; x < entry.getValue().length; x++) {
+                    g.setColor(entry.getValue()[x]);
+                    g.fillRect(100 + x * 20, key * 20 + 100, animationBlockSize, animationBlockSize);
+                }
+            }
+
+            animationBlockSize--;
+            if (animationBlockSize <= 0) {
+                for (Integer key : animationColors.keySet()) {
+                    shiftRowDown(key);
+                }
+                animationColors = new HashMap<>();
+                isTimeToAnimate = false;
+                animationBlockSize = 20;
             }
         }
     }
 
     public void setLeft(boolean status) {
         for (Tetromino t : tetrominoList) {
-            if(t.isActive()) t.setLeft(status);
+            if (t.isActive()) t.setLeft(status);
         }
     }
+
     public void setRight(boolean status) {
         for (Tetromino t : tetrominoList) {
-            if(t.isActive()) t.setRight(status);
+            if (t.isActive()) t.setRight(status);
         }
     }
+
     public void switchShape() {
         for (Tetromino t : tetrominoList) {
-            if(t.isActive()) t.switchShape();
+            if (t.isActive()) t.switchShape();
         }
     }
+
     public void setDown(boolean status) {
         for (Tetromino t : tetrominoList) {
-            if(t.isActive()) t.setDown(status);
+            if (t.isActive()) t.setDown(status);
         }
     }
 
